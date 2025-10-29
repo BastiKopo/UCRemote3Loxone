@@ -93,6 +93,17 @@ with:
 python -m ucremote3loxone.packaging
 ```
 
+If you run into permission problems while installing the package globally (for
+example `PermissionError: [Errno 1] Operation not permitted` on macOS) you can
+invoke the packaging helper without installing anything:
+
+```bash
+python tools/build_integration.py
+```
+
+The wrapper temporarily adds the local `src/` directory to `PYTHONPATH` and
+dispatches to the same build routine.
+
 By default the archive is stored inside `dist/uc-remote3-loxone.tar.gz`.  The
 builder flattens the Python sources so the top-level of the archive contains the
 `ucremote3loxone/` package, matching the structure expected by the Remote 3
@@ -130,6 +141,11 @@ prefer to trigger the build from your own tooling.
   3. Baue das Archiv wie unter Linux mit:
      ```bash
      python3 -m ucremote3loxone.packaging
+     ```
+     Sollten Installation oder Modulaufruf wegen fehlender Berechtigungen
+     scheitern, nutze alternativ den Wrapper:
+     ```bash
+     python3 tools/build_integration.py
      ```
   4. Das tarball liegt danach unter `dist/uc-remote3-loxone.tar.gz`. Bei Bedarf kannst du ein manuelles Archiv erstellen:
      ```bash
