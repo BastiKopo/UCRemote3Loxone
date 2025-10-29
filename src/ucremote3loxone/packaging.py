@@ -39,7 +39,7 @@ def _iter_integration_files(root: Path, *, include_tests: bool = False) -> Itera
 
     package_dir = root / "src" / "ucremote3loxone"
     for path in sorted(package_dir.rglob("*")):
-        if path.is_file():
+        if path.is_file() and _should_include_package_file(path):
             yield path
 
     if include_tests:
@@ -47,6 +47,18 @@ def _iter_integration_files(root: Path, *, include_tests: bool = False) -> Itera
         for path in sorted(tests_dir.rglob("*")):
             if path.is_file():
                 yield path
+
+
+def _should_include_package_file(path: Path) -> bool:
+    """Return ``True`` when ``path`` should be bundled in the archive."""
+
+    # ``tarfile`` happily packages bytecode caches which provide no value for
+    # Remote 3 integrations and trigger an error in the upload UI.  Filter them
+    # out so the archive only contains the actual source tree.
+    if path.suffix == ".pyc":
+        return False
+
+    return "__pycache__" not in path.parts
 
 
 def _default_project_root() -> Path:
