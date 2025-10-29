@@ -1,4 +1,5 @@
 import json
+import tarfile
 from pathlib import Path
 
 import pytest
@@ -7,16 +8,19 @@ from ucremote3loxone import (
     ButtonAction,
     ButtonMapping,
     DriverConfig,
+    LoxoneFunction,
     Remote3LoxoneDriver,
     load_config,
 )
 from ucremote3loxone.client import LoxoneClient
 from ucremote3loxone.exceptions import ConfigurationError, DriverError
+from ucremote3loxone.packaging import DEFAULT_ARCHIVE_NAME, build_integration_archive
 
 
 class DummyResponse:
-    def __init__(self, status_code: int = 200):
+    def __init__(self, status_code: int = 200, data: bytes | str = b""):
         self.status_code = status_code
+        self.data = data
 
 
 class DummySession:
@@ -176,3 +180,65 @@ def test_client_raises_on_error_response(base_config):
 
     with pytest.raises(DriverError):
         driver.handle_event("top", ButtonAction.SINGLE_PRESS)
+
+
+def test_discover_miniserver_functions_returns_filtered_controls(base_config):
+    structure = {
+        "controls": {
+            "uuid-1": {
+                "name": "Living Room Lights",
+                "type": "Switch",
+                "uuidAction": "uuid-1-action",
+                "room": "room-1",
+                "category": "category-1",
+            },
+            "uuid-2": {
+                "name": "Other Control",
+                "type": "Dimmer",
+                "uuidAction": "uuid-2-action",
+            },
+        },
+        "rooms": {"room-1": {"name": "Living Room"}},
+        "categories": {"category-1": {"name": "Lighting"}},
+        "remotes": [
+            {
+                "name": base_config.remote_name,
+                "controls": ["uuid-1"],
+            }
+        ],
+    }
+
+    class StructureSession(DummySession):
+        def get(self, url, auth=None, timeout=None):
+            super().get(url, auth=auth, timeout=timeout)
+            if url.endswith("data/LoxAPP3.json"):
+                return DummyResponse(data=json.dumps(structure).encode("utf-8"))
+            return DummyResponse()
+
+    session = StructureSession()
+    driver = make_driver(base_config, session)
+
+    functions = driver.discover_miniserver_functions()
+
+    assert functions == (
+        LoxoneFunction(
+            name="Living Room Lights",
+            uuid="uuid-1-action",
+            type="Switch",
+            room="Living Room",
+            category="Lighting",
+        ),
+    )
+
+
+def test_build_integration_archive(tmp_path: Path):
+    archive_path = build_integration_archive(output_dir=tmp_path, root=Path.cwd())
+
+    assert archive_path.name == DEFAULT_ARCHIVE_NAME
+    assert archive_path.exists()
+
+    with tarfile.open(archive_path, "r:gz") as tar:
+        members = tar.getnames()
+
+    assert "pyproject.toml" in members
+    assert "src/ucremote3loxone/driver.py" in members

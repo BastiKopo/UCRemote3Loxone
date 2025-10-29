@@ -13,6 +13,8 @@ by the Loxone REST interface.
   helper format.
 - Small and easily extensible Python package (`ucremote3loxone`).
 - Comes with unit tests that demonstrate the expected behaviour of the driver.
+- Discovers the functions exposed by the Loxone Miniserver so they can be
+  presented within the Remote 3 web interface.
 
 ## Getting started
 
@@ -62,7 +64,26 @@ driver = Remote3LoxoneDriver(config)
 
 # Example event originating from the Remote 3
 driver.handle_event("top", "single_press")
+
+# Present the available Loxone functions in your UI
+functions = driver.discover_miniserver_functions()
+for function in functions:
+    print(function.name, function.uuid)
 ```
+
+### Building an integration archive
+
+Create a tarball that can be uploaded to the Remote 3 integration interface.
+Ensure the package is importable (for example by running `pip install -e .`)
+before executing the command:
+
+```bash
+python -m ucremote3loxone.packaging
+```
+
+By default the archive is stored inside `dist/uc-remote3-loxone.tar.gz`.  The
+module also exposes a `build_integration_archive` helper if you prefer to
+trigger the build from your own tooling.
 
 ### Development
 
