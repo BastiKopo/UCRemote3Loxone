@@ -74,9 +74,10 @@ for function in functions:
 ### Building an integration archive
 
 Create a tarball that can be uploaded to the Remote 3 integration interface.
-Ensure the package is importable before executing the command.  The simplest
-option is to install the project in editable mode using the Python that will
-invoke the packaging module:
+The repository ships with an `integration.json` manifest that mirrors the
+structure expected by the official Remote 3 tooling.  Ensure the package is
+importable before executing the command.  The simplest option is to install the
+project in editable mode using the Python that will invoke the packaging module:
 
 ```bash
 python3 -m pip install --editable .
@@ -93,8 +94,10 @@ python -m ucremote3loxone.packaging
 ```
 
 By default the archive is stored inside `dist/uc-remote3-loxone.tar.gz`.  The
-module also exposes a `build_integration_archive` helper if you prefer to
-trigger the build from your own tooling.
+builder flattens the Python sources so the top-level of the archive contains the
+`ucremote3loxone/` package, matching the structure expected by the Remote 3
+runtime.  The module also exposes a `build_integration_archive` helper if you
+prefer to trigger the build from your own tooling.
 
 #### Platform-specific notes
 

@@ -1,0 +1,10 @@
+{
+  "manifestVersion": 1,
+  "type": "driver",
+  "identifier": "uc.remote3.loxone",
+  "name": "Loxone Miniserver",
+  "description": "Bridge the Unfolded Circle Remote 3 with a Loxone Miniserver.",
+  "entryPoint": "python:ucremote3loxone",
+  "version": "0.1.0",
+  "dependencies": []
+}
