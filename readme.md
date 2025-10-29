@@ -85,6 +85,32 @@ By default the archive is stored inside `dist/uc-remote3-loxone.tar.gz`.  The
 module also exposes a `build_integration_archive` helper if you prefer to
 trigger the build from your own tooling.
 
+#### Platform-specific notes
+
+- **Windows (PowerShell 5+ / Windows Terminal)**
+  1. Öffne eine PowerShell-Eingabeaufforderung im Repository-Ordner.
+  2. Stelle sicher, dass die Abhängigkeiten installiert sind (z. B. mittels `py -m venv .venv`, `.venv\Scripts\Activate.ps1`, `pip install -e .[dev]`).
+  3. Führe den Verpackungsbefehl aus:
+     ```powershell
+     python -m ucremote3loxone.packaging
+     ```
+  4. Die erzeugte Datei findest du anschließend unter `dist\uc-remote3-loxone.tar.gz`. Für einen manuellen Export kannst du alternativ das integrierte `tar`-Tool verwenden:
+     ```powershell
+     tar -czf uc-remote3-loxone.tar.gz -C dist .
+     ```
+
+- **macOS (Terminal/Zsh)**
+  1. Öffne das Terminal und navigiere in das Projektverzeichnis (`cd /Pfad/zu/UCRemote3Loxone`).
+  2. Installiere die Abhängigkeiten (z. B. `python3 -m venv .venv`, `source .venv/bin/activate`, `pip install -e .[dev]`).
+  3. Baue das Archiv wie unter Linux mit:
+     ```bash
+     python3 -m ucremote3loxone.packaging
+     ```
+  4. Das tarball liegt danach unter `dist/uc-remote3-loxone.tar.gz`. Bei Bedarf kannst du ein manuelles Archiv erstellen:
+     ```bash
+     tar -czf uc-remote3-loxone.tar.gz -C dist .
+     ```
+
 ### Development
 
 Run the unit test suite with `pytest`:
