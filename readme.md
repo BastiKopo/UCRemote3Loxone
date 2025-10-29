@@ -94,8 +94,10 @@ python -m ucremote3loxone.packaging
 ```
 
 By default the archive is stored inside `dist/uc-remote3-loxone.tar.gz`.  The
-module also exposes a `build_integration_archive` helper if you prefer to
-trigger the build from your own tooling.
+builder flattens the Python sources so the top-level of the archive contains the
+`ucremote3loxone/` package, matching the structure expected by the Remote 3
+runtime.  The module also exposes a `build_integration_archive` helper if you
+prefer to trigger the build from your own tooling.
 
 #### Platform-specific notes
 

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import tarfile
 from pathlib import Path
-from typing import Iterable
+from dataclasses import dataclass
+from typing import Iterator
 
 
 DEFAULT_ARCHIVE_NAME = "uc-remote3-loxone.tar.gz"
@@ -25,31 +26,43 @@ def build_integration_archive(
     files_to_package = list(_iter_integration_files(project_root, include_tests=include_tests))
 
     with tarfile.open(archive_path, "w:gz") as tar:
-        for path in files_to_package:
-            tar.add(path, arcname=str(path.relative_to(project_root)))
+        for entry in files_to_package:
+            tar.add(entry.source, arcname=str(entry.arcname))
 
     return archive_path
 
 
-def _iter_integration_files(root: Path, *, include_tests: bool = False) -> Iterable[Path]:
-    yield root / "pyproject.toml"
+@dataclass(frozen=True)
+class ArchiveEntry:
+    source: Path
+    arcname: Path
+
+
+def _iter_integration_files(
+    root: Path, *, include_tests: bool = False
+) -> Iterator[ArchiveEntry]:
+    yield ArchiveEntry(root / "pyproject.toml", Path("pyproject.toml"))
+
     integration_manifest = root / "integration.json"
     if integration_manifest.exists():
-        yield integration_manifest
+        yield ArchiveEntry(integration_manifest, Path("integration.json"))
+
     readme = root / "readme.md"
     if readme.exists():
-        yield readme
+        yield ArchiveEntry(readme, Path("readme.md"))
 
     package_dir = root / "src" / "ucremote3loxone"
     for path in sorted(package_dir.rglob("*")):
         if path.is_file() and _should_include_package_file(path):
-            yield path
+            arcname = Path("ucremote3loxone") / path.relative_to(package_dir)
+            yield ArchiveEntry(path, arcname)
 
     if include_tests:
         tests_dir = root / "tests"
         for path in sorted(tests_dir.rglob("*")):
             if path.is_file():
-                yield path
+                arcname = Path("tests") / path.relative_to(tests_dir)
+                yield ArchiveEntry(path, arcname)
 
 
 def _should_include_package_file(path: Path) -> bool:
