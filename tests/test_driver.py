@@ -232,13 +232,26 @@ def test_discover_miniserver_functions_returns_filtered_controls(base_config):
 
 
 def test_build_integration_archive(tmp_path: Path):
-    archive_path = build_integration_archive(output_dir=tmp_path, root=Path.cwd())
+    pycache_dir = Path("src/ucremote3loxone/__pycache__")
+    pycache_dir.mkdir(exist_ok=True)
+    bytecode_file = pycache_dir / "dummy.cpython-312.pyc"
+    bytecode_file.write_bytes(b"pyc")
 
-    assert archive_path.name == DEFAULT_ARCHIVE_NAME
-    assert archive_path.exists()
+    try:
+        archive_path = build_integration_archive(output_dir=tmp_path, root=Path.cwd())
 
-    with tarfile.open(archive_path, "r:gz") as tar:
-        members = tar.getnames()
+        assert archive_path.name == DEFAULT_ARCHIVE_NAME
+        assert archive_path.exists()
 
-    assert "pyproject.toml" in members
-    assert "src/ucremote3loxone/driver.py" in members
+        with tarfile.open(archive_path, "r:gz") as tar:
+            members = tar.getnames()
+
+        assert "pyproject.toml" in members
+        assert "src/ucremote3loxone/driver.py" in members
+        assert "src/ucremote3loxone/__pycache__/dummy.cpython-312.pyc" not in members
+    finally:
+        if bytecode_file.exists():
+            bytecode_file.unlink()
+        # Remove the directory if we created it during the test run.
+        if pycache_dir.exists() and not any(pycache_dir.iterdir()):
+            pycache_dir.rmdir()
