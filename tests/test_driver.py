@@ -247,6 +247,7 @@ def test_build_integration_archive(tmp_path: Path):
             members = tar.getnames()
 
         assert "pyproject.toml" in members
+        assert "integration.json" in members
         assert "src/ucremote3loxone/driver.py" in members
         assert "src/ucremote3loxone/__pycache__/dummy.cpython-312.pyc" not in members
     finally:

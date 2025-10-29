@@ -74,9 +74,10 @@ for function in functions:
 ### Building an integration archive
 
 Create a tarball that can be uploaded to the Remote 3 integration interface.
-Ensure the package is importable before executing the command.  The simplest
-option is to install the project in editable mode using the Python that will
-invoke the packaging module:
+The repository ships with an `integration.json` manifest that mirrors the
+structure expected by the official Remote 3 tooling.  Ensure the package is
+importable before executing the command.  The simplest option is to install the
+project in editable mode using the Python that will invoke the packaging module:
 
 ```bash
 python3 -m pip install --editable .

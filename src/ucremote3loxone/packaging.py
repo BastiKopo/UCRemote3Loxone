@@ -33,6 +33,9 @@ def build_integration_archive(
 
 def _iter_integration_files(root: Path, *, include_tests: bool = False) -> Iterable[Path]:
     yield root / "pyproject.toml"
+    integration_manifest = root / "integration.json"
+    if integration_manifest.exists():
+        yield integration_manifest
     readme = root / "readme.md"
     if readme.exists():
         yield readme
