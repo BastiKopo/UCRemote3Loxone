@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import json
 from types import SimpleNamespace
 from typing import Optional, Protocol
 from urllib.error import HTTPError, URLError
@@ -34,13 +35,13 @@ class _DefaultSession:
         try:
             with urlopen(request, timeout=timeout) as response:
                 status = response.getcode()
-                response.read()  # Drain body to allow connection reuse.
+                payload = response.read()
         except HTTPError as exc:  # pragma: no cover - exercised in integration environments
             return SimpleNamespace(status_code=exc.code)
         except URLError as exc:  # pragma: no cover - defensive guard
             raise DriverError(f"Failed to reach Loxone miniserver: {exc.reason}") from exc
 
-        return SimpleNamespace(status_code=status)
+        return SimpleNamespace(status_code=status, data=payload)
 
 
 class LoxoneClient:
@@ -90,3 +91,30 @@ class LoxoneClient:
 
         command = f"dev/sps/io/{control_uuid}/{value}"
         self.execute_command(command)
+
+    def fetch_structure(self, path: str = "data/LoxAPP3.json") -> dict:
+        """Return the parsed JSON structure exposed by the miniserver."""
+
+        if not path:
+            raise DriverError("A structure path must be provided")
+
+        url = urljoin(self._base_url, path.lstrip("/"))
+        response = self._session.get(url, auth=self._auth, timeout=self._timeout)
+        if response.status_code >= 400:
+            raise DriverError(
+                f"Fetching miniserver structure failed with status {response.status_code}"
+            )
+
+        payload = getattr(response, "data", b"")
+        if isinstance(payload, bytes):
+            text = payload.decode("utf-8", errors="replace")
+        else:
+            text = str(payload)
+
+        if not text.strip():
+            raise DriverError("Miniserver structure response was empty")
+
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise DriverError("Miniserver structure response was not valid JSON") from exc
