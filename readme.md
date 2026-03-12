@@ -65,6 +65,9 @@ driver = Remote3LoxoneDriver(config)
 # Example event originating from the Remote 3
 driver.handle_event("top", "single_press")
 
+# Or pass a Remote 3 style payload directly
+driver.handle_remote3_event({"button": "top", "action": "single_press"})
+
 # Present the available Loxone functions in your UI
 functions = driver.discover_miniserver_functions()
 for function in functions:
