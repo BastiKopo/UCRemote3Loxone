@@ -74,6 +74,18 @@ for function in functions:
     print(function.name, function.uuid)
 ```
 
+### Fertiges Paket in einem Befehl erstellen
+
+Wenn du direkt ein uploadbares Paket für die Remote 3 erzeugen möchtest, kannst
+du das mit dem mitgelieferten Wrapper-Skript tun:
+
+```bash
+./build_remote3_package.sh
+```
+
+Das Skript erstellt (bzw. aktualisiert) anschließend
+`dist/uc-remote3-loxone.tar.gz`.
+
 ### Building an integration archive
 
 Create a tarball that can be uploaded to the Remote 3 integration interface.
