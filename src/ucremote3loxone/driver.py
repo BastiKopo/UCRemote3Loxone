@@ -63,6 +63,41 @@ class Remote3LoxoneDriver:
             )
             self._dispatch_commands(mapping.commands)
 
+    def handle_remote3_event(self, event: dict) -> None:
+        """Handle a generic Remote 3 event payload.
+
+        Accepts both simple and nested event structures so the driver can be
+        used with different Remote 3 adapters/webhooks:
+
+        - ``{"button": "top", "action": "single_press"}``
+        - ``{"event": {"button": "top", "action": "single_press"}}``
+        - ``{"button": {"id": "top"}, "action": "single_press"}``
+        """
+
+        if not isinstance(event, dict):
+            raise ConfigurationError("Remote 3 event payload must be a JSON object")
+
+        payload = event.get("event")
+        if isinstance(payload, dict):
+            source = payload
+        else:
+            source = event
+
+        button_value = source.get("button")
+        if isinstance(button_value, dict):
+            button = str(button_value.get("id", "")).strip()
+        else:
+            button = str(button_value or "").strip()
+
+        action = str(source.get("action") or "").strip().lower()
+
+        if not button:
+            raise ConfigurationError("Remote 3 event payload misses a button identifier")
+        if not action:
+            raise ConfigurationError("Remote 3 event payload misses an action")
+
+        self.handle_event(button, action)
+
     def _dispatch_commands(self, commands: Iterable[str]) -> None:
         for command in commands:
             command = command.strip()

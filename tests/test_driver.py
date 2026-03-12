@@ -90,6 +90,36 @@ def test_handle_event_triggers_virtual_input(base_config):
     assert session.calls[0]["url"].endswith("dev/sps/io/another-uuid/toggle")
 
 
+def test_handle_remote3_event_with_flat_payload(base_config):
+    session = DummySession()
+    driver = make_driver(base_config, session)
+
+    driver.handle_remote3_event({"button": "top", "action": "single_press"})
+
+    assert session.calls[0]["url"].endswith("dev/sps/io/uuid/on")
+
+
+def test_handle_remote3_event_with_nested_payload(base_config):
+    session = DummySession()
+    driver = make_driver(base_config, session)
+
+    driver.handle_remote3_event(
+        {"event": {"button": {"id": "bottom"}, "action": "long_press"}}
+    )
+
+    assert session.calls[0]["url"].endswith("dev/sps/io/another-uuid/toggle")
+
+
+def test_handle_remote3_event_raises_for_missing_fields(base_config):
+    driver = make_driver(base_config)
+
+    with pytest.raises(ConfigurationError):
+        driver.handle_remote3_event({"action": "single_press"})
+
+    with pytest.raises(ConfigurationError):
+        driver.handle_remote3_event({"button": "top"})
+
+
 def test_register_button_creates_new_mapping(base_config):
     empty_config = DriverConfig(
         miniserver_url=base_config.miniserver_url,
