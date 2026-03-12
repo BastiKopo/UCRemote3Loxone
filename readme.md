@@ -163,6 +163,33 @@ Run the unit test suite with `pytest`:
 pytest
 ```
 
+## Status zur Treiber-Checkliste (Remote 3 Integration)
+
+Die von dir genannten Punkte sind in diesem Repository **größtenteils
+abgebildet**, aber mit einer wichtigen Abweichung: Die Integration ist hier in
+**Python** umgesetzt (nicht in JavaScript/Node.js).
+
+1. **Voraussetzungen**
+   - Für dieses Projekt wird Python 3 genutzt; die Einrichtung erfolgt über
+     `venv` und `pip install -e .[dev]`.
+2. **SDK/CLI / Integrationsformat**
+   - Es gibt ein `integration.json` im erwarteten Driver-Format sowie einen
+     Packaging-Flow, der ein uploadbares Tarball erzeugt.
+3. **Treiber-Struktur**
+   - Entspricht funktional der geforderten Struktur: Manifest
+     (`integration.json`) + Treiberlogik (`src/ucremote3loxone/*.py`).
+4. **Entwicklung der Funktionen**
+   - Verbindungsaufbau, Command-Dispatch, Virtual-Input-Aufrufe und
+     Funktions-Discovery vom Loxone Miniserver sind implementiert.
+5. **Testen/Upload**
+   - Unit-Tests (`pytest`) sind vorhanden; das Artefakt
+     `dist/uc-remote3-loxone.tar.gz` ist für den Upload über das Remote-Web-UI
+     vorgesehen.
+
+Wenn du zwingend eine **Node.js-basierte** Integration brauchst, müsste der
+Treiber neu in JavaScript umgesetzt werden. Für die aktuelle Python-Variante
+ist die Architektur jedoch bereits konsistent und uploadfähig.
+
 ## License
 
 MIT
